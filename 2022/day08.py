@@ -44,7 +44,6 @@ class Forest:
                     # Max height reached, no need to continue looking.
                     break
 
-
             print()
 
             # view from right
@@ -117,66 +116,67 @@ class Forest:
     def part_2(self):
         scores = []
         print('Part 2')
-        Score = collections.namedtuple('Score', 'row col score')
         # scenic score, traverse every tree and score it.
         for row in range(0, self.row_count):
             for col in range(0, self.col_count):
                 score = self.calculate_scenic_score(row, col)
-                scores.append(Score(row, col, score))
+                scores.append(score)
 
         scores.sort(key=lambda score: score.score)
         print(f'Highest Score: {scores[-1].score}')
 
     def calculate_scenic_score(self, row, col):
-        tree = self.grid[row][col]
+        Score = collections.namedtuple('Score', 'row col score')
+        scoring_tree = self.grid[row][col]
         # build 4 index lists
-        up = range(row-1, -1, -1)
-        down = range(row+1, self.row_count)
-        left = range(col-1, -1, -1)
-        right = range(col+1, self.col_count)
+        rows_up = range(row-1, -1, -1)
+        rows_down = range(row+1, self.row_count)
+        cols_left = range(col-1, -1, -1)
+        cols_right = range(col+1, self.col_count)
 
         scores = []
 
         visible = 0
-        for row_i in up:
+        for row_i in rows_up:
             up_tree = self.grid[row_i][col]
             visible += 1
             # Stop looking at same height or taller than scored tree.
-            if up_tree >= tree:
+            if up_tree >= scoring_tree:
                 break
         scores.append(visible)
 
         visible = 0
-        for row_i in down:
+        for row_i in rows_down:
             down_tree = self.grid[row_i][col]
             visible += 1
             # Stop looking at same height or taller than scored tree.
-            if down_tree >= tree:
+            if down_tree >= scoring_tree:
                 break
         scores.append(visible)
 
         visible = 0
-        for col_i in left:
+        for col_i in cols_left:
             left_tree = self.grid[row][col_i]
             visible += 1
             # Stop looking at same height or taller than scored tree.
-            if left_tree >= tree:
+            if left_tree >= scoring_tree:
                 break
         scores.append(visible)
 
         visible = 0
-        for col_i in right:
+        for col_i in cols_right:
             right_tree = self.grid[row][col_i]
             visible += 1
             # Stop looking at same height or taller than scored tree.
-            if right_tree >= tree:
+            if right_tree >= scoring_tree:
                 break
         scores.append(visible)
 
         scenic_score = math.prod(scores)
-        print(f'Scoring ({row}, {col}) Height: {tree} Score: {scenic_score}')
+        score = Score(row, col, scenic_score)
+        #print(f'{score}, Height: {tree}')
 
-        return scenic_score
+        return score
 
 
 def part_1(data):
