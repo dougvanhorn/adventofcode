@@ -1,0 +1,10 @@
+# Python cruft.
+__pycache__
+
+
+# Macletosh cruft.
+.python-version
+
+# Virtual Env
+ve/
+
