@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Gonna need a day from you, chachi."
+    exit 1
+fi
+
+echo "Creating 'day10' files."
+cp day00.py day${1}.py
+touch day${1}input.txt
