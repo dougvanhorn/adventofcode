@@ -5,6 +5,6 @@ if [ -z $1 ]; then
     exit 1
 fi
 
-echo "Creating 'day10' files."
+echo "Creating 'day${1}' files."
 cp day00.py day${1}.py
 touch day${1}input.txt
