@@ -146,6 +146,7 @@ def dijkstra_search(grid, cell):
     # Every edge costs 1.
     WEIGHT = 1
     while queue:
+        # We always visit the lowest cost node next.
         _, node = heap.heappop(queue)
         visited.add(node)
 
@@ -181,7 +182,6 @@ def part_2(data):
             best = (cell, cell_cost)
 
     print(f'Part 2: from {best[0].node} to {grid.end.node}: {best[1]}')
-
 
 
 def main(data):

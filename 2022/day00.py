@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
 
+import collections
+import math
+import logging
 import pathlib
+
+logging.basicConfig(level=logging.ERROR, format='%(message)s')
+
+
+def debug(message):
+    log = logging.getLogger('aoc')
+    log.debug(message)
 
 
 def part_1(data):
+    debug('== Part 1 ==')
     pass
 
 
 def part_2(data):
+    debug('== Part 2 ==')
     pass
 
 
