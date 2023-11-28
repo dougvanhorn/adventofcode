@@ -47,6 +47,8 @@ if __name__ == '__main__':
 
 
 def main():
+    print('Creating templates for: https://adventofcode.com/2023')
+
     # Get the day number from the user.
     try:
         day = sys.argv[1]
