@@ -95,23 +95,57 @@ def part_2(data):
     print('Answer: ', sum(numbers))
 
 
+def part_2_alternate(data):
+    # Be clever with string replacement due to the unclear compound word requirements.
+    fp = open('output.txt', mode='w')
+
+    word_map = {
+        'one': 'o1e',
+        'two': 't2o',
+        'three': 't3e',
+        'four': 'f4r',
+        'five': 'f5e',
+        'six': 's6x',
+        'seven': 's7n',
+        'eight': 'e8t',
+        'nine': 'n9e',
+    }
+    pattern = re.compile('|'.join(word_map.keys()))
+
+    debug('== Part 2 Alternate ==')
+    numbers = []
+
+    for line in data:
+        original_line = line
+        for word, digit in word_map.items():
+            line = line.replace(word, digit)
+
+        digits = [c for c in line if c in string.digits]
+        number = int(f'{digits[0]}{digits[-1]}')
+
+        numbers.append(number)
+
+    print('Answer: ', sum(numbers))
+
+
 def main(data):
-    #part_1(data)
+    part_1(data)  # 56465
     print()
-    sample = [
-        'two1nine',
-        'eightwothree',
-        'abcone2threexyz',
-        'xtwone3four',
-        '4nineeightseven2',
-        'zoneight234',
-        '7pqrstsixteen',
-        # Added this to example data to make the use case clear and accurate.
-        # Without this, the "correct" approach is ambiguous with the given example data.
-        'zzoneightzz'
-    ]
-    # part_2(sample)
-    part_2(data)
+    # sample = [
+    #     'two1nine',
+    #     'eightwothree',
+    #     'abcone2threexyz',
+    #     'xtwone3four',
+    #     '4nineeightseven2',
+    #     'zoneight234',
+    #     '7pqrstsixteen',
+    #     # Added this to example data to make the use case clear and accurate.
+    #     # Without this, the "correct" approach is ambiguous with the given example data.
+    #     'zzoneightzz'
+    # ]
+    # part_2(sample)  # 299
+    # part_2(data)  # 55902
+    part_2_alternate(data)  # 55902
 
 
 if __name__ == '__main__':
