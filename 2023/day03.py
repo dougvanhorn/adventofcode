@@ -6,6 +6,9 @@ import logging
 import pathlib
 import re
 
+import utils
+
+
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 
@@ -152,7 +155,8 @@ def part_2(data):
 def main(data):
     #part_1(data)
     #print()
-    part_2(data)
+    #part_2(data)
+    cells = utils.adjacent(140, 140, (2,5), (4,9))
 
 
 if __name__ == '__main__':
