@@ -122,63 +122,114 @@ def part_2(data):
     # Name your input file after this file.
     # E.g., day00-input.txt
     with open(f'{stem}-input.txt', mode='r+') as fp:
-        inputs, *blocks = fp.read().split('\n\n')
+        inputs, *sections = fp.read().split('\n\n')
 
-    # seeds: 123 456 789 1234
+    # seeds: 79 14 55 13
     inputs = list(map(int, inputs.split(':')[1].split()))
-
-    seeds = []
     # numbers (start, range) tuples.
+    # [79, 14, 55, 13]
+    seeds = []
+    # Pair up the left and size to get full range.
     for index in range(0, len(inputs), 2):
         # Create the ranges, (left, right).
         left = inputs[index]
         size = inputs[index+1]
         right = left + size
         seeds.append((left, right))
+    # (79, 93), (55, 68)
 
-    for block in blocks:
-        ranges = []
+    print(f'{len(seeds)} Seed ranges need transforming.')
+    for seed in seeds:
+        print(f'  {seed}')
+    # Blocks are all the sections of mappings.
+    for section in sections:
+        section_rules = []
         # each block is a set of map rules from the file.
         #   seed-to-soil-map:
         #   50 98 2
-        for line in block.splitlines()[1:]:
-            ranges.append(list(map(int, line.split())))
+        # drop the first line (section name), then map each line to a list of ints.
+        lines = section.splitlines()
+        print('='*79)
+        print(f'= SECTION {lines[0]}')
+        print('-'*79)
+        for line in lines[1:]:
+            section_rules.append(list(map(int, line.split())))
+        # [[50, 98, 2], [52, 50, 48]]
 
-        # use seeds as a soure of ranges,
+        # "seeds" is the source ranges we need to transform.
         # build a new range list from that source.
-        new_ranges = []
+        transformed_ranges = []
         while seeds:
+            # we will pop one range every loop.
+            # we will add to seeds as we run through the blocks.
             start, end = seeds.pop()
+            print(f'=== SEED {start} {end}')
 
-            for dest, source, size in ranges:
+            for dest, source, size in section_rules:
                 # The position tranform the mapping defines.
-                # E.g., 60 55 means +5, 50 55 means -5.
+                # E.g., 52 50 means +2, 50 98 means -48
                 transform = dest - source
+                print(f'Section Rule: ({source}, {source+size}) {transform} / {dest} {source} {size}')
+
+                # Given a seed range, and a mapping rule,
+                # Determine if there is an overlap.
+                # E.g.,
+                #                [55 56 57 58 59 60 61 62 63 64 65 66 67 68]  seed range
+                # [50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 ... 98]  52 50 48 transform
+                #
+                # Given the overlap, we need to generate a new transformed range in the soil values.
+                # [55+transform ... 68+transform]
+                # [57 58 59 60 61 62 63 64 65 66 67 68 69 70]
+                # 
+                # if we had seed range that wasn't mapped (left of overlap start or right of overlap end)
+                # we would add them back to seeds in case they get transformed by a subsequent mapping rule.
+
                 overlap_start = max(start, source)
                 overlap_end = min(end, source + size)
                 if overlap_start < overlap_end:
+                    print(f'  Seed / Rule Overlap: {overlap_start} {overlap_end}')
                     # Place the overlap range into new_ranges.
                     #new_ranges.append((overlap_start + transform, overlap_end + transform))
-                    new_ranges.append((overlap_start - source + dest, overlap_end - source + dest))
-                    # account for outlying ranges.
-                    # place them back into seeds for reconsideration.
+                    transformed_range = (overlap_start + transform, overlap_end + transform)
+                    print(f'  Transformed Seed Range: {transformed_range}')
+                    transformed_ranges.append(transformed_range)
+                    # any seed range not transformed goes back into seeds list, as later transforms
+                    # may apply to them.
                     if overlap_start > start:
+                        print(f'  Adding untransformed ({start}, {overlap_start}) back to seeds list.')
                         seeds.append((start, overlap_start))
                     if end > overlap_end:
+                        print(f'  Adding untransformed ({overlap_end}, {end}) back to seeds list.')
                         seeds.append((overlap_end, end))
 
-                    # Overlap added to new ranges, go to top of while loop.
+                    # Done transforming ranges and adding back un-transformed.
+                    # Back to the top of the loop.
+                    print('  Seed range transformed, move to next seed.')
+                    print('.'*79)
                     break
+
+                else:
+                    print('...no overlap, skipping.')
 
             else:
                 # probably don't need this as "else".
-                new_ranges.append((start, end))
+                print(f'No rules apply, adding ({start}, {end}) to transformed ranges.')
+                transformed_ranges.append((start, end))
 
-        seeds = new_ranges
+        seeds = transformed_ranges
+        print(f'= SECTION {lines[0]} complete.')
+        print('Seed values are now:')
+        for r in sorted(seeds):
+            print(f'  {r}')
+        print('-'*79)
+
 
     seeds.sort()
-    print(min(seeds))
-    print(seeds)
+    #print(seeds)
+    answer = min(seeds)[0]
+    print('Answer', answer)
+    if answer != 52210644:
+        print('WRONG!')
 
 
 
