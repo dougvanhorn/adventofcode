@@ -8,10 +8,6 @@ import pathlib
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 
-L = 'L'
-R = 'R'
-
-
 class Node:
     def __init__(self, s):
         self.name, edges = s.split(' = ')
