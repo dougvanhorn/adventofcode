@@ -1,5 +1,6 @@
 # Python cruft.
 __pycache__
+**/*.egg-info
 
 
 # Macletosh cruft.

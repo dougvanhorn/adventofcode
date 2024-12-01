@@ -50,6 +50,7 @@ def part_2(left_list, right_list):
 
     print(f'Total difference: {delta}')
 
+
 def main(_input):
     left_list = []
     right_list = []
