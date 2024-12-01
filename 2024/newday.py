@@ -4,6 +4,9 @@ import pathlib
 import re
 import sys
 
+import pyperclip
+
+
 # Python solution template.
 PYTHON_TEMPLATE = '''#!/usr/bin/env python3
 
@@ -11,6 +14,7 @@ import collections
 import logging
 import math
 import pathlib
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
@@ -53,20 +57,21 @@ if __name__ == '__main__':
 
 
 def main():
-    print('Creating templates for: https://adventofcode.com/2023')
+    print('Creating templates for: https://adventofcode.com/2024')
 
     # Get the day number from the user.
     try:
         day = sys.argv[1]
     except IndexError:
-        day = input('Enter a two-digit day: ')
-        if not re.match('\d\d', day):
+        day = input('Enter the day: ')
+        if not re.match(r'\d{1,2}$', day):
             print('Nope.  Try again when you get your shit together.')
             exit(1)
 
     # Format our filenames.
-    python_filename = f'day{day}.py'
-    input_filename = f'day{day}-input.txt'
+    day = int(day)
+    python_filename = f'day{day:02}.py'
+    input_filename = f'day{day:02}-input.txt'
 
     # Write the template to disk.  Make it executable.  And make it lame.
     with open(python_filename, mode='w') as fp:
@@ -77,7 +82,14 @@ def main():
     pathlib.Path(input_filename).touch()
 
     print(f'Created {python_filename} and {input_filename}')
+    url = f'https://adventofcode.com/2024/day/{day}'
+    print(f'    Puzzle:  {url}')
+    print(f'    Input:   {url}/input')
+
+    pyperclip.copy(url)
+    print('    URL has been copied to the clipboard.')
 
 
 if __name__ == '__main__':
     main()
+
