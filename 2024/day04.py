@@ -122,95 +122,69 @@ class Puzzle:
         self.size = len(rows[0])
 
     def __str__(self):
-        lines = []
-        lines.append('   0 1 2 3 4 5 6 7 8 9')
-        for i, row in enumerate(self.rows):
-            lines.append(f'{i}  ' + ' '.join(row))
-            lines.append('')
-        return '\n'.join(lines)
+        return f'Puzzle: {self.size}x{self.size}'
 
-    def search(self, coord, direction, word):
-        # If no word, return empty list, we found it.
-        if word == '':
-            return []
+    def get_word(self, coord, direction, length):
+        def is_valid(coord):
+            # coord must be within the bounds of the puzzle.
+            return (
+                0 <= coord.x < self.size
+                and
+                0 <= coord.y < self.size
+            )
 
-        try:
-            letter = self.rows[coord.y][coord.x]
-        except IndexError:
-            # Return False when we go off the edge.
-            return False
+        if direction not in ('up_right', 'right', 'down_right', 'down'):
+            raise ValueError(f'Invalid direction: {direction}')
 
-        if letter != word[0]:
-            # Return False when we don't match.
-            return False
+        coords = [coord]
+        while len(coords) < length:
+            coords.append(coords[-1].get(direction))
 
-        # At this point, the letter matches what we're looking for.
-        # save it to the coord.
-        coord.letter = letter
+        # print(f'  Direction: {direction}, Coords: {coords}, Length: {length}')
 
-        # Get the next coord and continue searching.
-        next_coord = coord.get(direction)
-        result = self.search(next_coord, direction, word[1:])
+        letters = [
+            self.rows[coord.y][coord.x]
+            for coord in coords
+            if is_valid(coord)
+        ]
 
-        if result is False:
-            # When search returns False, search failed, return False.
-            return False
-        else:
-            # When search returns a list, search succeeded, return list with coord at end.
-            return [coord] + result
+        return ''.join(letters)
+
+
+    def search(self, coord):
+        # up_left, left, down_left, down strings.
+        # We can match against XMAS, SAMX.
+        count = 0
+        WORDS = ('XMAS', 'SAMX')
+
+        # print(f'Searching {coord}.')
+        for direction in ('up_right', 'right', 'down_right', 'down'):
+            word = self.get_word(coord, direction, 4)
+            # print(f'  {direction}: {word}')
+            if word in WORDS:
+                count += 1
+
+        return count
+
+    def coords(self):
+        for y in range(self.size):
+            for x in range(self.size):
+                yield Coord(x, y)
 
 
 def part_1(rows):
     p('== Part 1 ==')
     # Word search, XMAS up down left right diagonally.
     # Puzzle is square.
-    size = len(rows)
-
     puzzle = Puzzle(rows)
-    # print(puzzle)
 
-    def coords(size):
-        for y in range(size):
-            for x in range(size):
-                yield Coord(x, y)
+    answer = 0
+    for coord in puzzle.coords():
+        count = puzzle.search(coord)
+        answer += count
 
+    print(f'Answer: {answer}')
 
-    counter = collections.Counter()
-
-    def fmt(tuples, word):
-        # format a string of the 4 coordinates.
-        # reverse the coords if the word is reversed.
-        # this lets us find accidental match overlap.
-        xys = [(coord.x, coord.y) for coord in tuples]
-        if word == 'SAMX':
-            xys.reverse()
-        s = ':'.join([f'{x},{y}' for x, y in xys])
-        letters = ''.join([coord.letter for coord in tuples])
-        # print(s)
-        # print(letters)
-        if letters not in ('SAMX', 'XMAS'):
-            raise ValueError(f'Invalid word: {letters}')
-
-        return [s]
-
-    count = 0
-    for coord in coords(size):
-        for direction in ('up_right', 'right', 'down_right', 'down'):
-            for word in ('XMAS', 'SAMX'):
-                found = puzzle.search(coord, direction, word)
-                if found:
-                    # print(f'Found {word} {direction}:', found)
-                    counter.update(fmt(found, word))
-                    count += 1
-
-    # print(f'Counter: {counter}')
-    keys = list(counter.keys())
-    keys.sort()
-    for key in keys:
-        value = counter[key]
-        print(f'{key}: {counter[key]}')
-
-    print(f'Count: {count}')
 
 class Puzzle2:
     def __init__(self, rows):
@@ -260,7 +234,7 @@ def main(data):
     # puzzle = RegexPuzzle(data)
     # puzzle.search()
     # return
-    # part_1(data)
+    part_1(data)
     part_2(data)
 
 
