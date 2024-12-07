@@ -194,6 +194,57 @@ class Map:
 
         loop_count = 0
 
+        def look_right(direction, coord):
+            if direction == UP:
+                cells = reversed(range(0, coord.y+1))
+                for y in cells:
+                    cell_coord = (coord.x, y)
+                    for ghost_guard in moves[cell_coord]:
+                        if ghost_guard.direction == UP:
+                            distance = abs(coord.y - y)
+                            print(f'  Looking {direction} from {coord}')
+                            print(f'    Loop {distance} cells away: {cell_coord}.')
+                            return True
+
+            elif direction == DOWN:
+                cells = range(coord.y, len(self.map)+1)
+                for y in cells:
+                    cell_coord = (coord.x, y)
+                    for ghost_guard in moves[cell_coord]:
+                        if ghost_guard.direction == DOWN:
+                            distance = abs(coord.y - y)
+                            print(f'  Looking {direction} from {coord}')
+                            print(f'    Loop {distance} cells away: {cell_coord}.')
+                            return True
+
+            elif direction == LEFT:
+                pass
+                cells = reversed(range(0, coord.x+1))
+                for x in cells:
+                    cell_coord = (x, coord.y)
+                    for ghost_guard in moves[cell_coord]:
+                        if ghost_guard.direction == LEFT:
+                            distance = abs(coord.x - x)
+                            print(f'  Looking {direction} from {coord}')
+                            print(f'    Loop {distance} cells away: {cell_coord}.')
+                            return True
+
+            elif direction == RIGHT:
+                cells = range(coord.x, len(self.map)+1)
+                for x in cells:
+                    cell_coord = (x, coord.y)
+                    for ghost_guard in moves[cell_coord]:
+                        if ghost_guard.direction == RIGHT:
+                            distance = abs(coord.x - x)
+                            print(f'  Looking {direction} from {coord}')
+                            print(f'    Loop {distance} cells away: {cell_coord}.')
+                            return True
+
+            else:
+                raise ValueError(f'Invalid direction: {direction}')
+
+            return False
+
         try:
             while True:
                 # this may not move the guard, might be an issue?
@@ -207,14 +258,22 @@ class Map:
                 print(self.guard)
                 next_direction = NEXT_DIRECTION[self.guard.direction]
 
-                # Check if we crossed a path that leads to a loop.
-                crossed_paths = moves[self.guard.coord.as_tuple()]
 
-                for ghost_guard in crossed_paths:
-                    print(f'  Checking ghost guard: {ghost_guard} against {next_direction}')
-                    if ghost_guard.direction == next_direction:
-                        print('    Loop detected!')
-                        loop_count += 1
+                # # Check if we crossed a path that leads to a loop.
+                # ghost_guards = moves[self.guard.coord.as_tuple()]
+
+                # if ghost_guards:
+                #     print(f'  Crossed a path, been here {len(ghost_guards)} times.')
+
+                # for ghost_guard in ghost_guards:
+                #     if ghost_guard.direction == next_direction:
+                #         print('    Loop detected!')
+                #         loop_count += 1
+
+                # Look to the right, see if there are any ghost guards that are facing
+                # in the same direction, that will lead to a loop.
+                if look_right(next_direction, self.guard.coord):
+                    loop_count += 1
 
                 moves[self.guard.coord.as_tuple()].append(self.guard.copy())
 
@@ -228,7 +287,7 @@ class Map:
 
 if __name__ == '__main__':
     data = load_data()
-    data = [
+    _data = [
         '....#.....',
         '.........#',
         '..........',
