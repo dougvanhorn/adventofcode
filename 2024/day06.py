@@ -42,6 +42,7 @@ def main(data):
 
 
 EMPTY = '.'
+VISITED = ':'
 WALL = '#'
 GUARD = '^'
 # Directions
@@ -97,6 +98,9 @@ class Guard:
         # Always turn right.
         self.direction = self.next_right[self.direction]
 
+    @property
+    def next_direction(self):
+        return self.next_right[self.direction]
 
 
 class Map:
@@ -106,9 +110,11 @@ class Map:
     def __init__(self, map_data):
         self.original_map_data = list(map_data)
 
+        self.display_map = []
         self.map = []
         for row_string in map_data:
             self.map.append([s for s in row_string])
+            self.display_map.append([s for s in row_string])
 
         self.guard = None
 
@@ -136,14 +142,20 @@ class Map:
 
         cell_in_front = self.map[coord_in_front.y][coord_in_front.x]
 
-        if cell_in_front == EMPTY:
+        if cell_in_front in (EMPTY, VISITED):
             # Move the guard.
             # Make the current cell empty.
-            self.map[self.guard.coord.y][self.guard.coord.x] = EMPTY
+            self.map[self.guard.coord.y][self.guard.coord.x] = VISITED
             # Update the guard.
             self.guard.coord = coord_in_front
             # Make the new cell the guard.
-            self.map[self.guard.coord.y][self.guard.coord.x] = GUARD
+            guard_on_map = {
+                UP: '^',
+                DOWN: 'v',
+                LEFT: '<',
+                RIGHT: '>',
+            }
+            self.map[self.guard.coord.y][self.guard.coord.x] = guard_on_map[self.guard.direction]
 
         elif cell_in_front == WALL:
             # Turn right.
@@ -152,6 +164,15 @@ class Map:
         else:
             raise ValueError(f'Invalid cell in front: {cell_in_front}')
 
+    def cell_in_front(self):
+        coord_in_front = self.guard.get_coord_in_front()
+        if self.coord_on_map(coord_in_front):
+            cell_in_front = self.map[coord_in_front.y][coord_in_front.x]
+            return cell_in_front
+
+    def next_cell_out_of_bounds(self):
+        coord_in_front = self.guard.get_coord_in_front()
+        return not self.coord_on_map(coord_in_front)
 
     def part_1(self):
         print('Part 1')
@@ -191,14 +212,19 @@ class Map:
         # That will let us know if we cross a path that leads to a loop.
         moves = collections.defaultdict(list)
         moves[self.guard.coord.as_tuple()].append(self.guard.copy())
+        # just put a letter into a set to indicate a direction the cell has seen.
 
         loop_count = 0
 
-        def look_right(direction, coord):
+        def look_right(guard):
+            direction = guard.next_direction
+            coord = guard.coord
+
             if direction == UP:
                 cells = reversed(range(0, coord.y+1))
                 for y in cells:
                     cell_coord = (coord.x, y)
+                    map_cell = self.map[cell_coord[1]][cell_coord[0]]
                     for ghost_guard in moves[cell_coord]:
                         if ghost_guard.direction == UP:
                             distance = abs(coord.y - y)
@@ -207,7 +233,7 @@ class Map:
                             return True
 
             elif direction == DOWN:
-                cells = range(coord.y, len(self.map)+1)
+                cells = range(coord.y, len(self.map))
                 for y in cells:
                     cell_coord = (coord.x, y)
                     for ghost_guard in moves[cell_coord]:
@@ -230,7 +256,7 @@ class Map:
                             return True
 
             elif direction == RIGHT:
-                cells = range(coord.x, len(self.map)+1)
+                cells = range(coord.x, len(self.map))
                 for x in cells:
                     cell_coord = (x, coord.y)
                     for ghost_guard in moves[cell_coord]:
@@ -253,11 +279,14 @@ class Map:
                 self.move()
                 # If we turn, don't re-check.
                 if current_coord == self.guard.coord.as_tuple():
+                    print('WALL!')
+                    self.print_area()
                     continue
 
-                print(self.guard)
-                next_direction = NEXT_DIRECTION[self.guard.direction]
+                if self.next_cell_out_of_bounds():
+                    raise self.OutOfBounds(f'About to walk off map: {self.guard.get_coord_in_front()}')
 
+                print(self.guard)
 
                 # # Check if we crossed a path that leads to a loop.
                 # ghost_guards = moves[self.guard.coord.as_tuple()]
@@ -272,17 +301,42 @@ class Map:
 
                 # Look to the right, see if there are any ghost guards that are facing
                 # in the same direction, that will lead to a loop.
-                if look_right(next_direction, self.guard.coord):
+                if look_right(self.guard):
                     loop_count += 1
 
                 moves[self.guard.coord.as_tuple()].append(self.guard.copy())
 
         except self.OutOfBounds as e:
-            pass
+            print(e)
 
         print(f'Loop: {loop_count}')
         print(f'Moves: {len(moves)}')
 
+    def print_area(self):
+        # print a 10x10 area around the guard.
+        max_xy = len(self.map) - 1
+        distance = 30
+
+        x = self.guard.coord.x
+        y = self.guard.coord.y
+        left = max(0, x - distance)
+        right = min(max_xy, x + distance)
+        if left == 0:
+            right = distance * 2
+        if right == max_xy:
+            left = max_xy - (distance * 2)
+
+        top = max(0, y - distance)
+        bottom = min(max_xy, y + distance)
+        if top == 0:
+            bottom = (distance * 2)
+        if bottom == max_xy:
+            top = max_xy - (distance * 2)
+
+        print('Map:')
+        for y in range(top, bottom+1):
+            row = self.map[y][left:right+1]
+            print(''.join(row))
 
 
 if __name__ == '__main__':
