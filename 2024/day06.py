@@ -236,6 +236,7 @@ class Map:
                 cells = range(coord.y, len(self.map))
                 for y in cells:
                     cell_coord = (coord.x, y)
+                    map_cell = self.map[cell_coord[1]][cell_coord[0]]
                     for ghost_guard in moves[cell_coord]:
                         if ghost_guard.direction == DOWN:
                             distance = abs(coord.y - y)
@@ -248,6 +249,7 @@ class Map:
                 cells = reversed(range(0, coord.x+1))
                 for x in cells:
                     cell_coord = (x, coord.y)
+                    map_cell = self.map[cell_coord[1]][cell_coord[0]]
                     for ghost_guard in moves[cell_coord]:
                         if ghost_guard.direction == LEFT:
                             distance = abs(coord.x - x)
@@ -259,6 +261,7 @@ class Map:
                 cells = range(coord.x, len(self.map))
                 for x in cells:
                     cell_coord = (x, coord.y)
+                    map_cell = self.map[cell_coord[1]][cell_coord[0]]
                     for ghost_guard in moves[cell_coord]:
                         if ghost_guard.direction == RIGHT:
                             distance = abs(coord.x - x)
