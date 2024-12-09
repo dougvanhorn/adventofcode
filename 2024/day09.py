@@ -65,6 +65,10 @@ class Space:
     def is_available(self, size):
         return self.size >= size
 
+    def save(self, db):
+        # insert or update?
+        db.execute('INSERT INTO empty_space (block_size) VALUES (?)', (self.size,))
+
     def split(self, size):
         if self.size < size:
             raise Exception(f'Not enough space to split. {self.size} < {size}')
@@ -74,7 +78,6 @@ class Space:
             new_space = Space(self.size - size)
             self.size -= size
             return self, new_space
-
 
 
 class Filesystem:
@@ -89,11 +92,6 @@ class Filesystem:
         self.disk_size = sum(self.data)
         # debug('data', self.data)
         debug(f'Disk size: {self.disk_size}')
-
-        self.disk_db = sqlite3.connect(':memory:')
-        self.disk_db.execute('CREATE TABLE empty_space (block_id INTEGER PRIMARY KEY, block_size INTEGER)')
-
-
 
         # Fill in the disk.
         self.disk = []
@@ -111,9 +109,6 @@ class Filesystem:
                 self.disk.extend(['.'] * empty_space)
                 if empty_space > 0:
                     self.disk2.append(Space(empty_space))
-
-                if empty_space > 0:
-                    disk_db.execute('INSERT INTO empty_space VALUES (?, ?)', (block.file_id, block.size))
 
             except IndexError:
                 # Last file.
@@ -237,8 +232,24 @@ class Filesystem:
         debug('End', end_of_disk)
         self.debug_disk2(0, end_of_disk)
 
+        empty_space = [block for block in self.disk2 if block.kind == SPACE]
+        files = [block for block in self.disk2 if block.kind == FILE]
+        files.reverse()
+
+        # Work our way back, moving files into empty space.
+        for file_block in files:
+            for space_block in empty_space:
+                if space.size >= file_block.size:
+                    debug('  Moving file:', file_block)
+                    debug('  Into space:', space_block)
+                    consumed_space, remaining_space = space_block.split(file_block.size)
+                    # file_block will take the index of the consumed space
+                    # and consumed space takes on the index of the file block.
+
+
         i = 0
-        while i <= end_of_disk:
+        first_empty = 0
+        while first_empty <= end_of_disk:
             current_block = self.disk2[i]
             last_file = self.disk2[end_of_disk]
 
