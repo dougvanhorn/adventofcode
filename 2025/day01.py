@@ -116,12 +116,13 @@ class Dial:
             # Moving left, we subtract the remainder.
             end_position = self.position - remaining_ticks
             # p(f'  End position after left turn: {end_position}')
-            # If we're < 0, we crossed zero.
+            # If we land on zero, count it.
             if end_position == 0:
                 zeros += 1
             elif end_position < 0:
                 end_position += 100 # Wrap around.
                 if start_position != 0:
+                    # We we crossed zero (didn't start there), count it.
                     zeros += 1
             # p(f'  End position: {end_position}')
             # p(f'  Zeros after left turn: {zeros}')
@@ -131,11 +132,11 @@ class Dial:
         elif direction == 'R':
             zeros = 0
             end_position = self.position + remaining_ticks
-            # If we're > 100, we crossed zero.
             # p(f'  End position after right turn: {end_position}')
+            # If we're >= 100, count the zero.
             if end_position == 100:
                 zeros += 1
-                end_position = 0 # Wrap around mod 100 mod
+                end_position = 0  # Set our position to 0.
             elif end_position > 100:
                 zeros += 1
                 end_position -= 100
