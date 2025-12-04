@@ -84,6 +84,10 @@ class Grid:
 
 
 def part_1(data):
+    """Check for moveable rolls of paper.
+
+    Roll is moveable if neighbors < 4
+    """
     p('== Part 1 ==')
     grid = Grid(data)
 
@@ -106,6 +110,12 @@ def part_1(data):
 
 
 def part_2(data):
+    """Check for moveable rolls of paper.
+
+    Roll is moveable if neighbors < 4
+
+    Continue removing rolls until no more can be removed.
+    """
     p('== Part 2 ==')
     grid = Grid(data)
 
