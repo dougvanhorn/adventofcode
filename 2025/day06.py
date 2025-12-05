@@ -5,8 +5,12 @@ import logging
 import math
 import pathlib
 
+import rich
+from rich.progress import track
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+log = logging.getLogger('aoc')
 
 
 def load_data():
@@ -18,23 +22,21 @@ def load_data():
     return data
 
 
-def p(message):
-    log = logging.getLogger('aoc')
-    log.debug(message)
-
-
 def part_1(data):
-    p('== Part 1 ==')
+    rich.print('[bold red]== Part 1 ==[/bold red]')
+    rich.print('description')
     pass
 
 
 def part_2(data):
-    p('== Part 2 ==')
+    rich.print('[bold red]== Part 2 ==[/bold red]')
+    rich.print('description')
     pass
 
 
 def main(data):
     _data = [
+
     ]
     # part_1(data)
     # part_2(data)
