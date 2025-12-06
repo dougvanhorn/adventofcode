@@ -26,7 +26,7 @@ def load_data():
     # Name your input file after this file.
     # E.g., day00-input.txt
     with open(f'{stem}-input.txt', mode='r+') as fp:
-        data = [line.strip() for line in fp.readlines()]
+        data = [line.strip('\n') for line in fp.readlines()]
     return data
 
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 def main():
     print('Creating templates for: https://adventofcode.com/2025')
 
-    for day in range(6, 12 + 1):
+    for day in range(7, 12 + 1):
         # Create the day files.
         create_day(day)
 

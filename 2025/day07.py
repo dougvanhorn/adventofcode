@@ -18,7 +18,8 @@ def load_data():
     # Name your input file after this file.
     # E.g., day00-input.txt
     with open(f'{stem}-input.txt', mode='r+') as fp:
-        data = [line.strip() for line in fp.readlines()]
+        data = [line.strip('
+') for line in fp.readlines()]
     return data
 
 
